@@ -870,7 +870,7 @@ async function loadChallenges() {
     // AVAILABLE CASE FILE
     // --------------------------------------------------------
 
-    else if (challenge.status === "available") {
+    else if (challenge.unlocked === true) {
 
       div.innerHTML = `
         <div>
