@@ -790,80 +790,155 @@ async function loadChallenges() {
   const list =
     document.getElementById("challengeList");
 
+  list.innerHTML = "";
+
+  // Get this student's personalised Case File pathway
   const { data, error } =
-    await db
-      .from("challenges")
-      .select(
-        "id,title,description,category,difficulty,max_points"
-      )
-      .eq("published", true)
-      .order("created_at");
+    await db.rpc("get_my_case_files");
 
   if (error) {
+    console.error("Case File pathway error:", error);
 
-    list.innerHTML =
-      `<div class="card">
-        Unable to load case files.
-      </div>`;
+    list.innerHTML = `
+      <div class="challenge-card">
+        Unable to load Case Files.
+      </div>
+    `;
 
     return;
   }
 
   if (!data || data.length === 0) {
-
-    list.innerHTML =
-      `<div class="card">
-        No active case files.
-      </div>`;
+    list.innerHTML = `
+      <div class="challenge-card">
+        No Case Files are currently available.
+      </div>
+    `;
 
     return;
   }
 
-  list.innerHTML = "";
-
   data.forEach(challenge => {
 
-    const div = document.createElement("div");
+    const div =
+      document.createElement("div");
 
-    div.className = "card case-file";
+    div.className = "challenge-card";
 
-    div.innerHTML = `
+    // --------------------------------------------------------
+    // COMPLETED CASE FILE
+    // --------------------------------------------------------
 
-      <div>
+    if (challenge.status === "completed") {
 
-        <div class="case-label">
-          Active Investigation
+      div.innerHTML = `
+        <div>
+          <div class="eyebrow">
+            ✓ CASE FILE COMPLETED
+          </div>
+
+          <h3>
+            ${escapeHTML(challenge.title)}
+          </h3>
+
+          <p>
+            ${escapeHTML(challenge.description || "")}
+          </p>
+
+          <span class="badge">
+            ${escapeHTML(challenge.rank_level || challenge.difficulty)}
+            • Best ${challenge.best_score} GP
+            • ${challenge.best_percent}%
+          </span>
         </div>
 
-        <h3>${escapeHTML(challenge.title)}</h3>
+        <button class="primary">
+          Replay Case File
+        </button>
+      `;
 
-        <p>
-          ${escapeHTML(challenge.description || "")}
-        </p>
+      div
+        .querySelector("button")
+        .addEventListener(
+          "click",
+          () => startChallenge(challenge)
+        );
+    }
 
-        <span class="badge">
-          ${escapeHTML(challenge.difficulty)}
-          • ${challenge.max_points} GP
-        </span>
 
-      </div>
+    // --------------------------------------------------------
+    // AVAILABLE CASE FILE
+    // --------------------------------------------------------
 
-      <button class="primary">
-        Open Case File
-      </button>
-    `;
+    else if (challenge.status === "available") {
 
-    div
-      .querySelector("button")
-      .addEventListener(
-        "click",
-        () => startChallenge(challenge)
-      );
+      div.innerHTML = `
+        <div>
+          <div class="eyebrow">
+            🔓 CASE FILE AVAILABLE
+          </div>
+
+          <h3>
+            ${escapeHTML(challenge.title)}
+          </h3>
+
+          <p>
+            ${escapeHTML(challenge.description || "")}
+          </p>
+
+          <span class="badge">
+            ${escapeHTML(challenge.rank_level || challenge.difficulty)}
+            • ${challenge.max_points} GP
+          </span>
+        </div>
+
+        <button class="primary">
+          Begin Case File
+        </button>
+      `;
+
+      div
+        .querySelector("button")
+        .addEventListener(
+          "click",
+          () => startChallenge(challenge)
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // LOCKED CASE FILE
+    // --------------------------------------------------------
+
+    else {
+
+      div.innerHTML = `
+        <div>
+          <div class="eyebrow">
+            🔒 CASE FILE LOCKED
+          </div>
+
+          <h3>
+            ${escapeHTML(challenge.title)}
+          </h3>
+
+          <p>
+            Continue your investigations to unlock this Case File.
+          </p>
+
+          <span class="badge">
+            ${escapeHTML(challenge.rank_level || challenge.difficulty)}
+          </span>
+        </div>
+
+        <button class="primary" disabled>
+          Locked
+        </button>
+      `;
+    }
 
     list.appendChild(div);
-
   });
-
 }
 
 
