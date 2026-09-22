@@ -848,7 +848,7 @@ async function loadChallenges() {
           <span class="badge">
             ${escapeHTML(challenge.rank_level || challenge.difficulty)}
             • Best ${challenge.best_score} GP
-            • ${challenge.best_percent}%
+            • ${Math.round((challenge.best_score / challenge.max_points) * 100)}%
           </span>
         </div>
 
