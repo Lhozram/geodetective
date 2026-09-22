@@ -940,10 +940,17 @@ function renderQuestion() {
 
   optionsBox.innerHTML = "";
 
-  const options =
-    Array.isArray(q.options)
-      ? q.options
-      : [];
+
+    // Make a fresh copy of the answers and shuffle them for every play/replay
+const options =
+  Array.isArray(q.options)
+    ? [...q.options]
+    : [];
+
+for (let i = options.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [options[i], options[j]] = [options[j], options[i]];
+}
 
   options.forEach(option => {
 
