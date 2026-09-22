@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoDetective Classroom</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --navy: #071824;
+      --navy2: #0d2635;
+      --panel: #102f40;
+      --green: #44d19d;
+      --green2: #26a97c;
+      --gold: #ffc857;
+      --white: #f7fbfd;
+      --muted: #a9bdc8;
+      --red: #ff6b6b;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, #15465a 0%, transparent 30%),
+        linear-gradient(135deg, var(--navy), #06131c);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .container {
+      width: min(1100px, 92%);
+      margin: auto;
+    }
+
+    header {
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      padding: 18px 0;
+      background: rgba(5,18,27,.8);
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: .4px;
+    }
+
+    .brand span {
+      color: var(--green);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: .85rem;
+      margin-top: 4px;
+    }
+
+    main {
+      padding: 40px 0 70px;
+    }
+
+    .card {
+      background: rgba(16,47,64,.92);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+    }
+
+    .login-card {
+      max-width: 470px;
+      margin: 8vh auto;
+    }
+
+    .detective-icon {
+      font-size: 4rem;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .intro {
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 26px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 16px 0 7px;
+    }
+
+    input {
+      width: 100%;
+      border-radius: 10px;
+      padding: 13px 14px;
+      border: 1px solid #496574;
+      background: #071b27;
+      color: white;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--green);
+    }
+
+    .primary {
+      border: 0;
+      background: var(--green);
+      color: #042218;
+      font-weight: 800;
+      padding: 13px 18px;
+      border-radius: 10px;
+    }
+
+    .primary:hover {
+      background: #5ce0af;
+    }
+
+    .full {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .secondary {
+      border: 1px solid #55717e;
+      background: transparent;
+      color: white;
+      padding: 9px 14px;
+      border-radius: 9px;
+    }
+
+    .error {
+      margin-top: 15px;
+      color: #ffb0b0;
+      line-height: 1.4;
+    }
+
+    .success {
+      color: var(--green);
+    }
+
+    .dashboard-title {
+      margin-bottom: 5px;
+    }
+
+    .welcome {
+      color: var(--muted);
+      margin-top: 0;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 26px 0;
+    }
+
+    .stat {
+      background: rgba(7,24,36,.8);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin-top: 7px;
+    }
+
+    .section-title {
+      margin: 34px 0 15px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      padding-bottom: 10px;
+    }
+
+    .case-file {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .case-label {
+      color: var(--gold);
+      font-size: .8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .case-file h3 {
+      margin: 7px 0;
+    }
+
+    .case-file p {
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 12px;
+      background: rgba(68,209,157,.13);
+      color: var(--green);
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: .78rem;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 9px;
+      border-radius: 10px;
+      background: #06141d;
+      overflow: hidden;
+      margin-bottom: 25px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--green);
+      width: 0;
+      transition: width .25s;
+    }
+
+    .question-prompt {
+      font-size: 1.4rem;
+      line-height: 1.4;
+      margin-bottom: 24px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      text-align: left;
+      border: 1px solid #466473;
+      background: #09202d;
+      color: white;
+      padding: 15px;
+      border-radius: 11px;
+    }
+
+    .option:hover {
+      border-color: var(--green);
+    }
+
+    .option.selected {
+      background: rgba(68,209,157,.18);
+      border-color: var(--green);
+    }
+
+    .question-actions {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .result-score {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--green);
+      margin: 10px 0;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 14px;
+      margin: 25px 0;
+    }
+
+    .leaderboard {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leaderboard th,
+    .leaderboard td {
+      text-align: left;
+      padding: 11px 9px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .leaderboard th {
+      color: var(--muted);
+      font-size: .8rem;
+      text-transform: uppercase;
+    }
+
+    .rank {
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #466473;
+      background: transparent;
+      color: white;
+    }
+
+    .tab.active {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    footer {
+      text-align: center;
+      color: #718995;
+      padding: 25px;
+      font-size: .8rem;
+    }
+
+    @media(max-width:700px) {
+      .stats,
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .case-file {
+        grid-template-columns: 1fr;
+      }
+
+      .header-row {
+        align-items: flex-start;
+      }
+
+      .question-prompt {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container header-row">
+    <div>
+      <div class="brand">🌍 Geo<span>Detective</span></div>
+      <div class="subtitle">Year 7 Geography Investigation Unit</div>
+    </div>
+
+    <button id="logoutButton"
+            class="secondary hidden"
+            onclick="logout()">
+      Sign out
+    </button>
+  </div>
+</header>
+
+
+<main class="container">
+
+  <!-- LOGIN -->
+  <section id="loginScreen">
+
+    <div class="card login-card">
+
+      <div class="detective-icon">🕵️‍♀️</div>
+
+      <h1>GeoDetective Classroom</h1>
+
+      <p class="intro">
+        Geography leaves clues everywhere.
+        Follow the evidence, identify the place and build your
+        reputation as a GeoDetective.
+      </p>
+
+      <form id="loginForm">
+
+        <label for="username">Detective ID</label>
+
+        <input
+          id="username"
+          autocomplete="username"
+          placeholder="e.g. 7HASS401"
+          required>
+
+        <label for="password">Password</label>
+
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required>
+
+        <button class="primary full" type="submit">
+          Enter GeoDetective
+        </button>
+
+      </form>
+
+      <div id="loginError" class="error"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- DASHBOARD -->
+  <section id="dashboardScreen" class="hidden">
+
+    <h1 class="dashboard-title" style="text-align:left">
+      GeoDetective HQ
+    </h1>
+
+    <p id="welcomeText" class="welcome"></p>
+
+    <div class="stats">
+
+      <div class="stat">
+        <div class="stat-label">Class</div>
+        <div id="classStat" class="stat-value">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Geography Points</div>
+        <div id="gpStat" class="stat-value">0 GP</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Experience</div>
+        <div id="xpStat" class="stat-value">0 XP</div>
+      </div>
+
+    </div>
+
+
+    <h2 class="section-title">Active Case Files</h2>
+
+    <div id="challengeList">
+      <div class="card">Loading case files…</div>
+    </div>
+
+
+    <h2 class="section-title">Detective Leaderboard</h2>
+
+    <div class="tabs">
+      <button id="classTab"
+              class="tab active"
+              onclick="showClassLeaderboard()">
+        My Class
+      </button>
+
+      <button id="yearTab"
+              class="tab"
+              onclick="showYearLeaderboard()">
+        Year 7
+      </button>
+    </div>
+
+    <div class="card">
+      <div id="leaderboardContainer">
+        Loading leaderboard…
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- CHALLENGE -->
+  <section id="challengeScreen" class="hidden">
+
+    <button class="secondary"
+            onclick="returnToDashboard()">
+      ← Case Files
+    </button>
+
+    <div class="card" style="margin-top:20px">
+
+      <div class="question-header">
+        <span id="caseTitle">Case File</span>
+        <span id="questionNumber"></span>
+      </div>
+
+      <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <div id="questionPrompt"
+           class="question-prompt"></div>
+
+      <div id="options"
+           class="options"></div>
+
+      <div class="question-actions">
+
+        <button id="nextButton"
+                class="primary"
+                onclick="nextQuestion()"
+                disabled>
+          Next clue →
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- RESULTS -->
+  <section id="resultScreen" class="hidden">
+
+    <div class="card">
+
+      <div class="case-label">Case Closed</div>
+
+      <h1 style="text-align:left">
+        Investigation Complete
+      </h1>
+
+      <div id="resultScore"
+           class="result-score">
+        0 GP
+      </div>
+
+      <p id="resultMessage"
+         class="welcome"></p>
+
+      <div class="result-grid">
+
+        <div class="stat">
+          <div class="stat-label">Correct</div>
+          <div id="correctResult"
+               class="stat-value"></div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">XP Earned</div>
+          <div id="xpResult"
+               class="stat-value"></div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Best Score</div>
+          <div id="bestResult"
+               class="stat-value"></div>
+        </div>
+
+      </div>
+
+      <button class="primary"
+              onclick="returnToDashboard()">
+        Return to GeoDetective HQ
+      </button>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<footer>
+  GeoDetective Classroom • Year 7 Geography
+</footer>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://epkvcccrxyqpideefcny.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_utu628xgyMdUEo4CXAecdA_kHAXCCp3";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+let dashboard = null;
+let currentChallenge = null;
+let questions = [];
+let currentQuestionIndex = 0;
+let answers = {};
+
+
+// ------------------------------------------------------------
+// SCREEN CONTROL
+// ------------------------------------------------------------
+
+function showScreen(id) {
+
+  [
+    "loginScreen",
+    "dashboardScreen",
+    "challengeScreen",
+    "resultScreen"
+  ].forEach(screen => {
+    document
+      .getElementById(screen)
+      .classList.add("hidden");
+  });
+
+  document
+    .getElementById(id)
+    .classList.remove("hidden");
+
+}
+
+
+// ------------------------------------------------------------
+// LOGIN
+// ------------------------------------------------------------
+
+document
+  .getElementById("loginForm")
+  .addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    const errorBox =
+      document.getElementById("loginError");
+
+    errorBox.textContent = "";
+
+    const username =
+      document
+        .getElementById("username")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const password =
+      document
+        .getElementById("password")
+        .value;
+
+    const internalEmail =
+      `${username}@geodetective.local`;
+
+    const { error } =
+      await db.auth.signInWithPassword({
+        email: internalEmail,
+        password: password
+      });
+
+    if (error) {
+
+      errorBox.textContent =
+        "Login unsuccessful. Check your Detective ID and password.";
+
+      return;
+    }
+
+    await initialiseDashboard();
+
+  });
+
+
+// ------------------------------------------------------------
+// LOGOUT
+// ------------------------------------------------------------
+
+async function logout() {
+
+  await db.auth.signOut();
+
+  dashboard = null;
+
+  document
+    .getElementById("logoutButton")
+    .classList.add("hidden");
+
+  document.getElementById("password").value = "";
+
+  showScreen("loginScreen");
+
+}
+
+
+// ------------------------------------------------------------
+// DASHBOARD
+// ------------------------------------------------------------
+
+async function initialiseDashboard() {
+
+  const { data, error } =
+    await db.rpc("get_my_dashboard");
+
+  if (error || !data || data.length === 0) {
+
+    alert(
+      "Your GeoDetective profile could not be loaded."
+    );
+
+    await logout();
+    return;
+  }
+
+  dashboard = data[0];
+
+  document.getElementById("welcomeText").textContent =
+    `Welcome, ${dashboard.display_name}. Your current assignment is ${dashboard.class_name}.`;
+
+  document.getElementById("classStat").textContent =
+    dashboard.class_code || "—";
+
+  document.getElementById("gpStat").textContent =
+    `${dashboard.total_gp} GP`;
+
+  document.getElementById("xpStat").textContent =
+    `${dashboard.total_xp} XP`;
+
+  document
+    .getElementById("logoutButton")
+    .classList.remove("hidden");
+
+  showScreen("dashboardScreen");
+
+  await loadChallenges();
+  await showClassLeaderboard();
+
+}
+
+
+// ------------------------------------------------------------
+// LOAD CASE FILES
+// ------------------------------------------------------------
+
+async function loadChallenges() {
+
+  const list =
+    document.getElementById("challengeList");
+
+  const { data, error } =
+    await db
+      .from("challenges")
+      .select(
+        "id,title,description,category,difficulty,max_points"
+      )
+      .eq("published", true)
+      .order("created_at");
+
+  if (error) {
+
+    list.innerHTML =
+      `<div class="card">
+        Unable to load case files.
+      </div>`;
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    list.innerHTML =
+      `<div class="card">
+        No active case files.
+      </div>`;
+
+    return;
+  }
+
+  list.innerHTML = "";
+
+  data.forEach(challenge => {
+
+    const div = document.createElement("div");
+
+    div.className = "card case-file";
+
+    div.innerHTML = `
+
+      <div>
+
+        <div class="case-label">
+          Active Investigation
+        </div>
+
+        <h3>${escapeHTML(challenge.title)}</h3>
+
+        <p>
+          ${escapeHTML(challenge.description || "")}
+        </p>
+
+        <span class="badge">
+          ${escapeHTML(challenge.difficulty)}
+          • ${challenge.max_points} GP
+        </span>
+
+      </div>
+
+      <button class="primary">
+        Open Case File
+      </button>
+    `;
+
+    div
+      .querySelector("button")
+      .addEventListener(
+        "click",
+        () => startChallenge(challenge)
+      );
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+// ------------------------------------------------------------
+// START CHALLENGE
+// ------------------------------------------------------------
+
+async function startChallenge(challenge) {
+
+  currentChallenge = challenge;
+
+  const { data, error } =
+    await db.rpc(
+      "get_challenge_questions",
+      {
+        p_challenge_id: challenge.id
+      }
+    );
+
+  if (error) {
+
+    alert(
+      "The case file could not be opened."
+    );
+
+    console.error(error);
+    return;
+  }
+
+  questions = data || [];
+
+  if (questions.length === 0) {
+
+    alert(
+      "This case file does not contain any questions."
+    );
+
+    return;
+  }
+
+  currentQuestionIndex = 0;
+  answers = {};
+
+  document.getElementById("caseTitle").textContent =
+    challenge.title;
+
+  showScreen("challengeScreen");
+
+  renderQuestion();
+
+}
+
+
+// ------------------------------------------------------------
+// RENDER QUESTION
+// ------------------------------------------------------------
+
+function renderQuestion() {
+
+  const q =
+    questions[currentQuestionIndex];
+
+  document.getElementById("questionNumber").textContent =
+    `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+
+  document.getElementById("progressBar").style.width =
+    `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+  document.getElementById("questionPrompt").textContent =
+    q.prompt;
+
+  const optionsBox =
+    document.getElementById("options");
+
+  optionsBox.innerHTML = "";
+
+  const options =
+    Array.isArray(q.options)
+      ? q.options
+      : [];
+
+  options.forEach(option => {
+
+    const button =
+      document.createElement("button");
+
+    button.className = "option";
+    button.textContent = option;
+
+    button.onclick = () =>
+      selectAnswer(
+        q.question_id,
+        option,
+        button
+      );
+
+    optionsBox.appendChild(button);
+
+  });
+
+  const nextButton =
+    document.getElementById("nextButton");
+
+  nextButton.disabled = true;
+
+  nextButton.textContent =
+    currentQuestionIndex === questions.length - 1
+      ? "Submit case file"
+      : "Next clue →";
+
+}
+
+
+// ------------------------------------------------------------
+// SELECT ANSWER
+// ------------------------------------------------------------
+
+function selectAnswer(
+  questionID,
+  answer,
+  selectedButton
+) {
+
+  answers[questionID] = answer;
+
+  document
+    .querySelectorAll(".option")
+    .forEach(button =>
+      button.classList.remove("selected")
+    );
+
+  selectedButton.classList.add("selected");
+
+  document.getElementById("nextButton").disabled =
+    false;
+
+}
+
+
+// ------------------------------------------------------------
+// NEXT QUESTION
+// ------------------------------------------------------------
+
+async function nextQuestion() {
+
+  if (
+    currentQuestionIndex <
+    questions.length - 1
+  ) {
+
+    currentQuestionIndex++;
+
+    renderQuestion();
+
+    return;
+  }
+
+  await submitChallenge();
+
+}
+
+
+// ------------------------------------------------------------
+// SUBMIT TO SECURE DATABASE FUNCTION
+// ------------------------------------------------------------
+
+async function submitChallenge() {
+
+  const nextButton =
+    document.getElementById("nextButton");
+
+  nextButton.disabled = true;
+  nextButton.textContent = "Checking evidence…";
+
+  const { data, error } =
+    await db.rpc(
+      "submit_challenge",
+      {
+        p_challenge_id:
+          currentChallenge.id,
+
+        p_answers:
+          answers
+      }
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "Your investigation could not be submitted. Please try again."
+    );
+
+    nextButton.disabled = false;
+    nextButton.textContent =
+      "Submit case file";
+
+    return;
+  }
+
+  showResults(data);
+
+}
+
+
+// ------------------------------------------------------------
+// RESULTS
+// ------------------------------------------------------------
+
+function showResults(result) {
+
+  document.getElementById("resultScore").textContent =
+    `${result.score} GP`;
+
+  document.getElementById("correctResult").textContent =
+    `${result.correct_answers}/${result.total_questions}`;
+
+  document.getElementById("xpResult").textContent =
+    `+${result.xp_earned} XP`;
+
+  document.getElementById("bestResult").textContent =
+    `${result.best_score} GP`;
+
+  let message;
+
+  if (result.gp_improvement > 0) {
+
+    message =
+      `New best result. Your competitive GP increased by ${result.gp_improvement}.`;
+
+  } else {
+
+    message =
+      "Case completed. You earned practice XP, but your previous best GP remains on the leaderboard.";
+
+  }
+
+  document.getElementById("resultMessage").textContent =
+    message;
+
+  showScreen("resultScreen");
+
+}
+
+
+// ------------------------------------------------------------
+// RETURN TO DASHBOARD
+// ------------------------------------------------------------
+
+async function returnToDashboard() {
+
+  currentChallenge = null;
+  questions = [];
+  answers = {};
+
+  await initialiseDashboard();
+
+}
+
+
+// ------------------------------------------------------------
+// CLASS LEADERBOARD
+// ------------------------------------------------------------
+
+async function showClassLeaderboard() {
+
+  if (!dashboard) return;
+
+  activateTab("class");
+
+  const { data, error } =
+    await db.rpc(
+      "get_class_leaderboard",
+      {
+        requested_class:
+          dashboard.class_code
+      }
+    );
+
+  renderLeaderboard(data, error, false);
+
+}
+
+
+// ------------------------------------------------------------
+// YEAR 7 LEADERBOARD
+// ------------------------------------------------------------
+
+async function showYearLeaderboard() {
+
+  activateTab("year");
+
+  const { data, error } =
+    await db.rpc(
+      "get_year7_leaderboard"
+    );
+
+  renderLeaderboard(data, error, true);
+
+}
+
+
+// ------------------------------------------------------------
+// RENDER LEADERBOARD
+// ------------------------------------------------------------
+
+function renderLeaderboard(
+  data,
+  error,
+  includeClass
+) {
+
+  const box =
+    document.getElementById(
+      "leaderboardContainer"
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    box.textContent =
+      "Leaderboard unavailable.";
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    box.innerHTML =
+      `<p class="welcome">
+        No competitive scores have been recorded yet.
+      </p>`;
+
+    return;
+  }
+
+  let html = `
+    <table class="leaderboard">
+
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Detective</th>
+          ${includeClass ? "<th>Class</th>" : ""}
+          <th>GP</th>
+          <th>XP</th>
+        </tr>
+      </thead>
+
+      <tbody>
+  `;
+
+  data.forEach((row, index) => {
+
+    html += `
+      <tr>
+        <td class="rank">
+          ${index + 1}
+        </td>
+
+        <td>
+          ${escapeHTML(row.username)}
+        </td>
+
+        ${includeClass
+          ? `<td>${escapeHTML(row.class_code)}</td>`
+          : ""
+        }
+
+        <td>
+          ${row.total_gp}
+        </td>
+
+        <td>
+          ${row.total_xp}
+        </td>
+      </tr>
+    `;
+
+  });
+
+  html += `
+      </tbody>
+    </table>
+  `;
+
+  box.innerHTML = html;
+
+}
+
+
+// ------------------------------------------------------------
+// TABS
+// ------------------------------------------------------------
+
+function activateTab(which) {
+
+  document
+    .getElementById("classTab")
+    .classList.toggle(
+      "active",
+      which === "class"
+    );
+
+  document
+    .getElementById("yearTab")
+    .classList.toggle(
+      "active",
+      which === "year"
+    );
+
+}
+
+
+// ------------------------------------------------------------
+// SIMPLE HTML ESCAPING
+// ------------------------------------------------------------
+
+function escapeHTML(value) {
+
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+// ------------------------------------------------------------
+// RESTORE EXISTING LOGIN SESSION
+// ------------------------------------------------------------
+
+async function checkExistingSession() {
+
+  const {
+    data: { session }
+  } = await db.auth.getSession();
+
+  if (session) {
+
+    await initialiseDashboard();
+
+  } else {
+
+    showScreen("loginScreen");
+
+  }
+
+}
+
+checkExistingSession();
+
+</script>
+
+</body>
+</html>
