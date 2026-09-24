@@ -818,7 +818,7 @@ async function loadChallenges() {
     return;
   }
 
-  data.forEach(challenge => {
+  [...data].reverse().forEach(challenge => {
 
     const div =
       document.createElement("div");
