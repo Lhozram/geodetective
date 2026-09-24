@@ -1067,25 +1067,107 @@ for (let i = options.length - 1; i > 0; i--) {
 // SELECT ANSWER
 // ------------------------------------------------------------
 
-function selectAnswer(
+async function selectAnswer(
   questionID,
   answer,
   selectedButton
 ) {
 
-  answers[questionID] = answer;
+  // Prevent the student answering the same question twice
+  const optionButtons = document.querySelectorAll(".option");
 
-  document
-    .querySelectorAll(".option")
-    .forEach(button =>
-      button.classList.remove("selected")
-    );
+  optionButtons.forEach(button => {
+    button.disabled = true;
+  });
+
+  // Store the student's answer for final scoring
+  answers[questionID] = answer;
 
   selectedButton.classList.add("selected");
 
-  document.getElementById("nextButton").disabled =
-    false;
+  // Ask Supabase to check this answer securely
+  const { data, error } = await supabaseClient.rpc(
+    "check_question_answer",
+    {
+      p_question_id: questionID,
+      p_answer: answer
+    }
+  );
 
+  if (error) {
+    console.error("Answer check error:", error);
+
+    // Allow another attempt only if the server check failed
+    optionButtons.forEach(button => {
+      button.disabled = false;
+    });
+
+    alert("GeoDetective could not check this answer. Please try again.");
+    return;
+  }
+
+  // Colour the student's answer
+  if (data.is_correct) {
+    selectedButton.style.background = "#2e7d32";
+    selectedButton.style.borderColor = "#4caf50";
+    selectedButton.style.color = "white";
+    selectedButton.textContent = "✓ " + answer;
+  } else {
+    selectedButton.style.background = "#b3261e";
+    selectedButton.style.borderColor = "#ef5350";
+    selectedButton.style.color = "white";
+    selectedButton.textContent = "✕ " + answer;
+
+    // Highlight the actual correct answer
+    optionButtons.forEach(button => {
+      if (
+        button.textContent.trim().toLowerCase() ===
+        data.correct_answer.trim().toLowerCase()
+      ) {
+        button.style.background = "#2e7d32";
+        button.style.borderColor = "#4caf50";
+        button.style.color = "white";
+        button.textContent = "✓ " + button.textContent;
+      }
+    });
+  }
+
+  // Create the learning feedback box
+  const feedback = document.createElement("div");
+  feedback.id = "answerFeedback";
+  feedback.style.marginTop = "18px";
+  feedback.style.padding = "16px";
+  feedback.style.borderRadius = "12px";
+  feedback.style.background = "#102f40";
+  feedback.style.lineHeight = "1.5";
+
+  const resultHeading = document.createElement("strong");
+  resultHeading.textContent =
+    data.is_correct
+      ? "✓ Correct!"
+      : "✕ Not quite.";
+
+  feedback.appendChild(resultHeading);
+
+  if (!data.is_correct) {
+    const correctLine = document.createElement("div");
+    correctLine.style.marginTop = "8px";
+    correctLine.textContent =
+      "Correct answer: " + data.correct_answer;
+    feedback.appendChild(correctLine);
+  }
+
+  if (data.explanation) {
+    const explanation = document.createElement("div");
+    explanation.style.marginTop = "8px";
+    explanation.textContent = data.explanation;
+    feedback.appendChild(explanation);
+  }
+
+  document.getElementById("options").appendChild(feedback);
+
+  // Student may now continue
+  document.getElementById("nextButton").disabled = false;
 }
 
 
