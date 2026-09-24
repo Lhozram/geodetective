@@ -1086,7 +1086,7 @@ async function selectAnswer(
   selectedButton.classList.add("selected");
 
   // Ask Supabase to check this answer securely
-  const { data, error } = await supabaseClient.rpc(
+  const { data, error } = await db.rpc(
     "check_question_answer",
     {
       p_question_id: questionID,
