@@ -1030,7 +1030,7 @@ function readQuestionAloud() {
       const letter = String.fromCharCode(65 + index);
 
       speechText +=
-        `${letter}. ${button.textContent.trim()}. `;
+        `${letter}. ${button.dataset.answer}. `;
     });
   }
 
@@ -1074,13 +1074,16 @@ for (let i = options.length - 1; i > 0; i--) {
   [options[i], options[j]] = [options[j], options[i]];
 }
 
-  options.forEach(option => {
+  options.forEach((option, index) => {
 
     const button =
       document.createElement("button");
 
     button.className = "option";
-    button.textContent = option;
+
+const letter = String.fromCharCode(65 + index);
+button.textContent = `${letter}. ${option}`;
+button.dataset.answer = option;
 
     button.onclick = () =>
       selectAnswer(
@@ -1164,8 +1167,8 @@ async function selectAnswer(
     // Highlight the actual correct answer
     optionButtons.forEach(button => {
       if (
-        button.textContent.trim().toLowerCase() ===
-        data.correct_answer.trim().toLowerCase()
+        button.dataset.answer.trim().toLowerCase() ===
+data.correct_answer.trim().toLowerCase()
       ) {
         button.style.background = "#2e7d32";
         button.style.borderColor = "#4caf50";
