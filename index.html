@@ -543,7 +543,14 @@
 
       <div id="questionPrompt"
            class="question-prompt"></div>
-
+<button
+  id="listenButton"
+  type="button"
+  onclick="readQuestionAloud()"
+  style="margin-bottom:16px;"
+>
+  🔊 Listen to question
+</button>
       <div id="options"
            class="options"></div>
 
@@ -999,7 +1006,43 @@ const { data, error } =
 // ------------------------------------------------------------
 // RENDER QUESTION
 // ------------------------------------------------------------
+// ---------------------------------------------------------
+// READ QUESTION ALOUD
+// ---------------------------------------------------------
 
+function readQuestionAloud() {
+
+  // Stop any speech already playing
+  window.speechSynthesis.cancel();
+
+  const question =
+    document.getElementById("questionPrompt").textContent.trim();
+
+  const optionButtons =
+    Array.from(document.querySelectorAll("#options .option"));
+
+  let speechText = question;
+
+  if (optionButtons.length > 0) {
+    speechText += ". The possible answers are: ";
+
+    optionButtons.forEach((button, index) => {
+      const letter = String.fromCharCode(65 + index);
+
+      speechText +=
+        `${letter}. ${button.textContent.trim()}. `;
+    });
+  }
+
+  const speech =
+    new SpeechSynthesisUtterance(speechText);
+
+  speech.lang = "en-AU";
+  speech.rate = 0.9;
+  speech.pitch = 1;
+
+  window.speechSynthesis.speak(speech);
+}
 function renderQuestion() {
 
   const q =
