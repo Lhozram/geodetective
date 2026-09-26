@@ -917,32 +917,10 @@ async function loadChallenges() {
     // LOCKED CASE FILE
     // --------------------------------------------------------
 
-    else {
-
-      div.innerHTML = `
-        <div>
-          <div class="eyebrow">
-            🔒 CASE FILE LOCKED
-          </div>
-
-          <h3>
-            ${escapeHTML(challenge.title)}
-          </h3>
-
-          <p>
-            Continue your investigations to unlock this Case File.
-          </p>
-
-          <span class="badge">
-            ${escapeHTML(challenge.rank_level || challenge.difficulty)}
-          </span>
-        </div>
-
-        <button class="primary" disabled>
-          Locked
-        </button>
-      `;
-    }
+   else {
+  // Locked case files remain completely hidden.
+  return;
+}
 
     list.appendChild(div);
   });
