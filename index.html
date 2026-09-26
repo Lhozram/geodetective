@@ -1512,7 +1512,48 @@ async function checkExistingSession() {
 
 }
 
-checkExistingSession();
+ // ------------------------------------------------------------
+// PASSWORD RECOVERY
+// ------------------------------------------------------------
+
+db.auth.onAuthStateChange(async (event, session) => {
+
+  if (event === "PASSWORD_RECOVERY") {
+
+    const newPassword = prompt(
+      "GeoDetective password recovery\n\nEnter your new password:"
+    );
+
+    if (!newPassword) {
+      alert("Password reset cancelled.");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      alert("Your new password must contain at least 8 characters.");
+      return;
+    }
+
+    const { error } = await db.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) {
+      alert("Password could not be changed: " + error.message);
+      return;
+    }
+
+    alert(
+      "Password changed successfully. You can now use your new password to sign in."
+    );
+
+    await db.auth.signOut();
+    window.location.href = "https://lhozram.github.io/geodetective/";
+  }
+
+});
+  
+  checkExistingSession();
 
 </script>
 
