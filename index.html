@@ -700,8 +700,9 @@ document
         .getElementById("password")
         .value;
 
-    const internalEmail =
-      `${username}@geodetective.local`;
+    const internalEmail = username.includes("@")
+  ? username
+  : `${username}@geodetective.local`;
 
     const { error } =
       await db.auth.signInWithPassword({
