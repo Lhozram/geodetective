@@ -841,7 +841,9 @@ async function loadChallenges() {
       div.innerHTML = `
         <div>
           <div class="eyebrow">
-            ✓ CASE FILE COMPLETED
+           ${challenge.best_score / challenge.max_points >= 0.6
+  ? "✓ CASE FILE COMPLETED"
+  : "↻ CASE FILE IN PROGRESS"}
           </div>
 
           <h3>
