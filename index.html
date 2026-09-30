@@ -543,6 +543,14 @@
 
       <div id="questionPrompt"
            class="question-prompt"></div>
+      <div id="questionImageContainer" style="display:none; margin:18px 0;">
+  <img
+    id="questionImage"
+    src=""
+    alt="Geographical evidence for this question"
+    style="width:100%; max-width:800px; height:auto; border-radius:10px; display:block;"
+  >
+</div>
 <button
   id="listenButton"
   type="button"
@@ -1037,7 +1045,17 @@ function renderQuestion() {
 
   document.getElementById("questionPrompt").textContent =
     q.prompt;
+  // Show a geographical image when this question has one.
+  const imageContainer = document.getElementById("questionImageContainer");
+  const questionImage = document.getElementById("questionImage");
 
+  if (q.image_url) {
+    questionImage.src = q.image_url;
+    imageContainer.style.display = "block";
+  } else {
+    questionImage.src = "";
+    imageContainer.style.display = "none";
+  }
   const optionsBox =
     document.getElementById("options");
 
